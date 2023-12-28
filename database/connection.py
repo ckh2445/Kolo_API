@@ -6,8 +6,8 @@ DATABASE_URL = "mysql+pymysql://root:todos@127.0.0.1:3306/todos"
 engine = create_engine(DATABASE_URL, echo=True)
 SessionFactory = sessionmaker(autocommit=False,autoflush=False, bind=engine)
 
-session = SessionFactory()
+#session = SessionFactory()
 
-# from sqlalchemy import Select
+# from sqlalchemy import select
 
-# session.scalar(Select(1))
+# session.scalar(select(1))
