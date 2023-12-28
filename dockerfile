@@ -1,10 +1,10 @@
 FROM alpine:3.19
 
-WORKDIR /app/
+WORKDIR $APP_HOME
 
-COPY ./main.py /app/
-COPY ./requirements.txt /app/
+COPY . ./
 
-RUN pip install -r requirements.txt
+# Install production dependencies.
+RUN pip install --no-cache-dir -r requirements.txt
 
 CMD uvicorn --host=0.0.0.0 --port 8000 main:app

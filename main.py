@@ -33,7 +33,7 @@ todo_data = {
 #     return list(todo_data.values())
 
 @app.get("/todos")
-def get_todos_handler(order:str | None = None):con
+def get_todos_handler(order:str | None = None):
     ret =  list(todo_data.values())
     
     if order and order == "DESC":
