@@ -32,11 +32,11 @@ todo_data = {
 # def get_todos_handler():
 #     return list(todo_data.values())
 
-@app.get("/todos")
-def get_todos_handler(order:str | None = None):
-    ret =  list(todo_data.values())
+# @app.get("/todos")
+# def get_todos_handler(order:str | None = None):
+#     ret =  list(todo_data.values())
     
-    if order and order == "DESC":
-        return ret[::-1]
+#     if order and order == "DESC":
+#         return ret[::-1]
     
-    return ret
+#     return ret
