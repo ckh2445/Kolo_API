@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from database.connection import get_db
 from database.orm import ToDo
 from database.repository import get_todos
+from schema.response import ListToDoResponse, ToDoSchema
 
 app = FastAPI()
 
@@ -43,11 +44,15 @@ def get_todos_handler(
     ):
     
     todos: List[ToDo] = get_todos(session=session)
-    
+     
     if order and order == "DESC":
-        return todos[::-1]
+        return ListToDoResponse(
+            todos=[ToDoSchema.from_orm(todo) for todo in todos[::-1]]
+        )
     
-    return todos
+    return ListToDoResponse(
+        todos=[ToDoSchema.from_orm(todo) for todo in todos]
+    )
 
 @app.get("/todos/{todo_id}",status_code=200)
 def get_todo_handler(todo_id: int):
