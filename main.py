@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from database.connection import get_db
 from database.orm import ToDo
-from database.repository import get_todos
+from database.repository import create_todo, get_todos
 from schema.response import ListToDoResponse, ToDoSchema
 
 app = FastAPI()
@@ -68,9 +68,16 @@ class CreateToDoRequest(BaseModel):
     is_done: bool
     
 @app.post("/todos",status_code= 201)
-def create_todo_handler(request: CreateToDoRequest):
-    todo_data[request.id] = request.dict()
-    return todo_data[request.id]
+def create_todo_handler(
+    request: CreateToDoRequest,
+    session: Session = Depends(get_db)
+    ) -> ToDoSchema:
+    todo: ToDo = ToDo.create(request)
+    todo: ToDo = create_todo(session=session, todo=todo)
+    
+    return ToDoSchema.from_orm(todo)
+
+
 
 @app.patch("/todos/{todo_id}", status_code = 200)
 def update_todo_handler(
