@@ -17,8 +17,8 @@ class ToDoListSchema(BaseModel):
     
     
 if __name__ == "__main__":
-    from schema.response import ToDoSchema
-    from database.orm import ToDo
+    from src.schema.response import ToDoSchema
+    from src.database.orm import ToDo
     
     todo = ToDo(id=100, contents="test", is_done=True)
     
