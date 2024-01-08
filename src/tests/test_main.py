@@ -1,4 +1,6 @@
 from database.orm import ToDo
+from database.repository import ToDoRepository
+
 
 def test_health_check(client):
     response = client.get("/")
@@ -14,7 +16,7 @@ def test_get_todos(client, mocker):
     외부 api 또는 db에서 꺼내오는 작업은 오래 걸리는 연산이다 이를 목킹을 사용한다.
     data가 많다면 테스트코드가 오래걸린다.
     '''
-    mocker.patch("api.todo.get_todos", return_value =[
+    mocker.patch.object(ToDoRepository, "get_todos", return_value=[
         ToDo(id=1, contents="FastAPI Section 0", is_done=True),
         ToDo(id=2, contents="FastAPI Section 1", is_done=False),
     ])
@@ -29,7 +31,7 @@ def test_get_todos(client, mocker):
         ]
     }
 
-    #order=DESC
+    # order=DESC
     response = client.get("/todos?order=DESC")
     assert response.status_code == 200
     assert response.json() == {
@@ -39,24 +41,26 @@ def test_get_todos(client, mocker):
         ]
     }
 
+
 def test_get_todo(client, mocker):
-    #200
-    mocker.patch(
-                 "api.todo.get_todo_by_todo_id",
-                 return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=True),
-                 )
+    # 200
+    mocker.patch.object(ToDoRepository,
+                        "get_todo_by_todo_id",
+                        return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=True),
+                        )
     response = client.get("/todos/1")
     assert response.status_code == 200
     assert response.json() == {"id": 1, "contents": "FastAPI Section 0", "is_done": True}
 
-    #404
-    mocker.patch(
-        "api.todo.get_todo_by_todo_id",
-        return_value=None,
-    )
+    # 404
+    mocker.patch.object(ToDoRepository,
+                        "get_todo_by_todo_id",
+                        return_value=None,
+                        )
     response = client.get("/todos/1")
     assert response.status_code == 404
     assert response.json() == {"detail": "ToDo Not Found"}
+
 
 def test_create_todo(client, mocker):
     '''
@@ -64,65 +68,67 @@ def test_create_todo(client, mocker):
     spy라는 기능을 이용하여 특정 개체를 tracking을 할 수 있다. 하지만 equal mathcing method를 overriding할 수 있지만 현재는 어려운 개념이므로 pass
     '''
     create_spy = mocker.spy(ToDo, "create")
-    mocker.patch(
-        "api.todo.create_todo",
-        return_value=ToDo(id=1, contents="todo", is_done=True),
-    )
+    mocker.patch.object(ToDoRepository,
+                        "create_todo",
+                        return_value=ToDo(id=1, contents="todo", is_done=True),
+                        )
     body = {
-        "contents":"test",
-        "is_done":False,
+        "contents": "test",
+        "is_done": False,
     }
     response = client.post("/todos", json=body)
 
-    assert create_spy.spy_return.id is None #이 시점에서는 orm객체가 생성이 되었지만 id가 없음
+    assert create_spy.spy_return.id is None  # 이 시점에서는 orm객체가 생성이 되었지만 id가 없음
     assert create_spy.spy_return.contents == "test"
     assert create_spy.spy_return.is_done is False
 
     assert response.status_code == 201
     assert response.json() == {"id": 1, "contents": "todo", "is_done": True}
 
+
 def test_update_todo(client, mocker):
     # 200
-    mocker.patch(
-        "api.todo.get_todo_by_todo_id",
-        return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=True),
-    )
+    mocker.patch.object(ToDoRepository,
+                        "get_todo_by_todo_id",
+                        return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=True),
+                        )
     undone = mocker.patch.object(ToDo, "undone")
-    mocker.patch(
-        "api.todo.update_todo",
-        return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=False),
-    )
-    response = client.patch("/todos/1",json={"is_done": False})
+    mocker.patch.object(ToDoRepository,
+                        "update_todo",
+                        return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=False),
+                        )
+    response = client.patch("/todos/1", json={"is_done": False})
     undone.assert_called_once_with()
 
     assert response.status_code == 200
     assert response.json() == {"id": 1, "contents": "FastAPI Section 0", "is_done": False}
 
     # 404
-    mocker.patch(
-        "api.todo.get_todo_by_todo_id",
-        return_value=None,
-    )
+    mocker.patch.object(ToDoRepository,
+                        "get_todo_by_todo_id",
+                        return_value=None,
+                        )
     response = client.patch("/todos/1", json={"is_done": True})
     assert response.status_code == 404
     assert response.json() == {"detail": "ToDo Not Found"}
 
+
 def test_delete_todo(client, mocker):
     # 204
-    mocker.patch(
-        "api.todo.get_todo_by_todo_id",
-        return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=True),
-    )
-    mocker.patch("api.todo.delete_todo", return_value=None)
+    mocker.patch.object(ToDoRepository,
+                        "get_todo_by_todo_id",
+                        return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=True),
+                        )
+    mocker.patch.object(ToDoRepository, "delete_todo", return_value=None)
 
     response = client.delete("/todos/1")
     assert response.status_code == 204
 
     # 404
-    mocker.patch(
-        "api.todo.get_todo_by_todo_id",
-        return_value=None,
-    )
+    mocker.patch.object(ToDoRepository,
+                        "get_todo_by_todo_id",
+                        return_value=None,
+                        )
     response = client.delete("/todos/1")
     assert response.status_code == 404
     assert response.json() == {"detail": "ToDo Not Found"}
