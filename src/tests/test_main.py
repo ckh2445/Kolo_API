@@ -1,18 +1,14 @@
 from fastapi.testclient import TestClient
 
 from database.orm import ToDo
-from main import app
 
-client = TestClient(app=app)
-
-
-def test_health_check():
+def test_health_check(client):
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"ping": "pong"}
 
 
-def test_get_todos(mocker):
+def test_get_todos(client, mocker):
     # order=ASC
     '''
     test 코드 작성은 실제 DB에 요청을 여러번 하는것보다 적게 하는게 좋다  (연산이 오래걸린다)
@@ -24,6 +20,7 @@ def test_get_todos(mocker):
         ToDo(id=1, contents="FastAPI Section 0", is_done=True),
         ToDo(id=2, contents="FastAPI Section 1", is_done=False),
     ])
+
     response = client.get("/todos")
 
     assert response.status_code == 200
