@@ -59,3 +59,26 @@ def test_get_todo(client, mocker):
     response = client.get("/todos/1")
     assert response.status_code == 404
     assert response.json() == {"detail": "ToDo Not Found"}
+
+def test_create_todo(client, mocker):
+    '''
+    단순 mocking을 사용할 경우 main.py의 51번째 줄을 테스트하지 못한다.
+    spy라는 기능을 이용하여 특정 개체를 tracking을 할 수 있다. 하지만 equal mathcing method를 overriding할 수 있지만 현재는 어려운 개념이므로 pass
+    '''
+    create_spy = mocker.spy(ToDo, "create")
+    mocker.patch(
+        "main.create_todo",
+        return_value=ToDo(id=1, contents="todo", is_done=True),
+    )
+    body = {
+        "contents":"test",
+        "is_done":False,
+    }
+    response = client.post("/todos", json=body)
+
+    assert create_spy.spy_return.id is None #이 시점에서는 orm객체가 생성이 되었지만 id가 없음
+    assert create_spy.spy_return.contents == "test"
+    assert create_spy.spy_return.is_done is False
+
+    assert response.status_code == 201
+    assert response.json() == {"id": 1, "contents": "todo", "is_done": True}
