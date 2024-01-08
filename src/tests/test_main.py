@@ -94,7 +94,7 @@ def test_update_todo(client, mocker):
         "main.update_todo",
         return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=False),
     )
-    response = client.patch("/todos/1",json={"is_done": True})
+    response = client.patch("/todos/1",json={"is_done": False})
     undone.assert_called_once_with()
 
     assert response.status_code == 200
@@ -106,5 +106,25 @@ def test_update_todo(client, mocker):
         return_value=None,
     )
     response = client.patch("/todos/1", json={"is_done": True})
+    assert response.status_code == 404
+    assert response.json() == {"detail": "ToDo Not Found"}
+
+def test_delete_todo(client, mocker):
+    # 204
+    mocker.patch(
+        "main.get_todo_by_todo_id",
+        return_value=ToDo(id=1, contents="FastAPI Section 0", is_done=True),
+    )
+    mocker.patch("main.delete_todo", return_value=None)
+
+    response = client.delete("/todos/1")
+    assert response.status_code == 204
+
+    # 404
+    mocker.patch(
+        "main.get_todo_by_todo_id",
+        return_value=None,
+    )
+    response = client.delete("/todos/1")
     assert response.status_code == 404
     assert response.json() == {"detail": "ToDo Not Found"}

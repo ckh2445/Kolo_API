@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from database.connection import get_db
 from database.orm import ToDo
-from database.repository import create_todo, get_todo_by_todo_id, get_todos, update_todo
+from database.repository import create_todo, get_todo_by_todo_id, get_todos, update_todo, delete_todo
 from schema.request import CreateToDoRequest
 from schema.response import ToDoListSchema, ToDoSchema
 
@@ -98,9 +98,15 @@ def update_todo_handler(
 
 
 @app.delete("/todos/{todo_id}", status_code=204)
-def delete_todo_handler(todo_id: int):
-    todo = todo_data.pop(todo_id, None)
+def delete_todo_handler(
+        todo_id: int,
+        session: Session = Depends(get_db)
+):
+    todo: ToDo | None = get_todo_by_todo_id(session=session, todo_id=todo_id)
 
-    if todo:
-        return
-    raise HTTPException(status_code=404, detail="ToDo Not Found")
+    if not todo:
+        #delete
+        raise HTTPException(status_code=404, detail="ToDo Not Found")
+
+    delete_todo(session=session, todo_id=todo_id)
+
