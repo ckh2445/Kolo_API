@@ -1,5 +1,5 @@
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
 
 from schema.request import CreateToDoRequest
 
@@ -12,6 +12,7 @@ class ToDo(Base):
     id = Column(Integer, primary_key=True, index=True)
     contents = Column(String(256), nullable=False)
     is_done = Column(Boolean, nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"))
 
     def __repr__(self):
         return f"ToDo(id={self.id}, contents={self.contents}, is_don={self.is_done}"
@@ -32,14 +33,9 @@ class ToDo(Base):
         return self
 
 
-if __name__ == '__main__':
-    from connection import SessionFactory
-    from sqlalchemy import select
-    from orm import ToDo
+class User(Base):
+    __tablename__ = 'user'
 
-    session = SessionFactory()
-    session.scalars(select(ToDo))
-    todos = list(session.scalars(select(ToDo)))
-
-    for todo in todos:
-        print(todo)
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(256), nullable=False)
+    password = Column(String(256), nullable=False)
