@@ -1,4 +1,4 @@
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
 
 from schema.request import CreateToDoRequest
@@ -39,3 +39,4 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(256), nullable=False)
     password = Column(String(256), nullable=False)
+    todos = relationship("ToDo", lazy="joined") # 조회할 때 join해서 함께 가져옴
