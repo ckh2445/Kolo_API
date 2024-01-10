@@ -17,7 +17,7 @@ def user_sign_up_handler(
 ):
     # 1. request body(username, password)  별도의 중복 체크 x
     # 2. password -> hashing -> hashed_password
-    hashed_password: str = user_service.hast_password(
+    hashed_password: str = user_service.hash_password(
         plain_password=request.password
     )
 
