@@ -13,3 +13,4 @@ uvicorn==0.22.0
 pytest
 httpx
 pytest-mock
+bcrypt

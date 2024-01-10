@@ -40,3 +40,10 @@ class User(Base):
     username = Column(String(256), nullable=False)
     password = Column(String(256), nullable=False)
     todos = relationship("ToDo", lazy="joined") # 조회할 때 join해서 함께 가져옴
+
+    @classmethod
+    def create(cls, username: str, hashed_password: str) -> "User":
+        return cls(
+            username = username,
+            password = hashed_password,
+        )
