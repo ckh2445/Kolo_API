@@ -38,7 +38,7 @@ class ToDoRepository:
 
 class UserRepository:
     def __init__(self, session: Session = Depends(get_db)):
-        self.session = Session
+        self.session = session
 
     def save_user(self, user: User) -> User:
         self.session.add(instance=user)
