@@ -5,7 +5,7 @@ from service.user import UserService
 
 
 def test_user_sign_up(client, mocker, hash_password=None):
-    # mocker.patch.object(
+    # hash_password = mocker.patch.object(
     #     UserService,
     #     "hash_password",
     #     return_value="hashed"
@@ -35,4 +35,4 @@ def test_user_sign_up(client, mocker, hash_password=None):
     # )
 
     assert response.status_code == 201
-    #assert response.json() == {"id": 1, "username": "test"}
+    # assert response.json() == {"id": 1, "username": "test"}
