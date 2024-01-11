@@ -11,7 +11,7 @@ from database.orm import ToDo, User
 
 class ToDoRepository:
     def __init__(self, session: Session = Depends(get_db)):
-        self.session = Session
+        self.session = session
 
     def get_todos(self) -> List[ToDo]:
         return list(self.session.scalars(select(ToDo)))
