@@ -14,3 +14,4 @@ pytest
 httpx
 pytest-mock
 bcrypt
+python-jose
