@@ -9,3 +9,8 @@ docker run -p 3306:3306 -e MYSQL_ROOT_PASSWORD=todos -e MYSQL_DATABASE=todos -d 
 # --name: container name
 # mysql:8.0: git pull mysql v8.0
 ```
+
+### Redis with Docker
+```dockerfile
+docker run -p 6379:6379 --name redis -d --rm redis
+```
