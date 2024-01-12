@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 
+from cache import redis_client
 from database.orm import User
 from database.repository import UserRepository
-from schema.request import SignUpRequest, LogInRequest
+from schema.request import SignUpRequest, LogInRequest, CreateOTPRequest
 from schema.response import UserSchema, JWTResponse
+from security import get_access_token
 from service.user import UserService
 
 router = APIRouter(prefix="/users")
@@ -54,10 +56,42 @@ def user_log_in_handler(
     )
 
     if not verified:
-        raise HTTPException(status_code=401, detail="Not Authorized") #일반적으로 인증 실패 시 401
+        raise HTTPException(status_code=401, detail="Not Authorized")  # 일반적으로 인증 실패 시 401
 
     # 4. create jwt
     access_token: str = user_service.create_jwt(username=user.username)
 
     # 5. return jwt
     return JWTResponse(access_token=access_token)
+
+
+# 회원가입(username, password)/ 로그인
+# 이메일 알림: 회원가입 -> 이메일 인증(otp) -> 유저 이메일 저장 -> 이메일 알림
+
+# POST /users/email/otp -> (key: email, value: 1234, exp: 3min)
+# POST /users/email/otp/verify -> request(email, otp) -> user(email)
+
+@router.post("/email/otp")
+def create_otp_handler(
+        request: CreateOTPRequest,
+        _: str = Depends(get_access_token), #header 검증 사용하진 않음
+        user_service: UserService = Depends(),
+
+):
+
+    # 1. access_token - 회원 가입 완료된 회원만 이메일 인증
+    # 2. request body(email)
+    # 3. otp create(random 4 digit)
+    otp: int = user_service.create_otp()
+
+    # 4. redis otp(email, 1234, exp=3min)
+    redis_client.set(request.email, otp)
+    redis_client.expire(request.email, 3 * 60)
+
+    # 5. send otp to email
+    return {"otp": otp}
+
+
+@router.post("/email/otp")
+def verify_otp_handler():
+    return
