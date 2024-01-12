@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from cache import redis_client
 from database.orm import User
 from database.repository import UserRepository
-from schema.request import SignUpRequest, LogInRequest, CreateOTPRequest
+from schema.request import SignUpRequest, LogInRequest, CreateOTPRequest, VerifyOTPRequest
 from schema.response import UserSchema, JWTResponse
 from security import get_access_token
 from service.user import UserService
@@ -74,11 +74,10 @@ def user_log_in_handler(
 @router.post("/email/otp")
 def create_otp_handler(
         request: CreateOTPRequest,
-        _: str = Depends(get_access_token), #header 검증 사용하진 않음
+        _: str = Depends(get_access_token),  # header 검증 사용하진 않음
         user_service: UserService = Depends(),
 
 ):
-
     # 1. access_token - 회원 가입 완료된 회원만 이메일 인증
     # 2. request body(email)
     # 3. otp create(random 4 digit)
@@ -92,6 +91,30 @@ def create_otp_handler(
     return {"otp": otp}
 
 
-@router.post("/email/otp")
-def verify_otp_handler():
-    return
+@router.post("/email/otp/verify")
+def verify_otp_handler(
+        request: VerifyOTPRequest,
+        access_token: str = Depends(get_access_token),
+        user_service: UserService = Depends(),
+        user_repo: UserRepository = Depends(),
+):
+    # 1. access_token
+    # 2. request body(email, otp)
+    otp: str | None = redis_client.get(request.email)
+
+    if not otp:
+        raise HTTPException(status_code=400, detail="Bad Request")
+
+    if request.otp != int(otp):
+        raise HTTPException(status_code=400, detail="Bad Request")
+
+    # 3. request.otp == redis.get(email)
+    username: str = user_service.decode_jwt(access_token=access_token)
+    user: User | None = user_repo.get_user_by_username(username)
+    if not user:
+        raise HTTPException(status_code=400, detail="User Not Found")
+
+    # save email to user
+    # 4. user(email)
+
+    return UserSchema.from_orm(user)
