@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 
 from cache import redis_client
 from database.orm import User
@@ -94,6 +94,7 @@ def create_otp_handler(
 @router.post("/email/otp/verify")
 def verify_otp_handler(
         request: VerifyOTPRequest,
+        background_tasks: BackgroundTasks,
         access_token: str = Depends(get_access_token),
         user_service: UserService = Depends(),
         user_repo: UserRepository = Depends(),
@@ -116,5 +117,12 @@ def verify_otp_handler(
 
     # save email to user
     # 4. user(email)
-
+    # send email to user
+    # 시간이 오래걸리기 때문에 background에서 돌아야한다. 그것이 바로 background test
+    background_tasks.add_task(
+        user_service.send_email_to_user,
+        email="st@fastapi.com"
+    )
     return UserSchema.from_orm(user)
+    #server Request -> verify_otp -> send email(10s) -> Response
+    # Background                                                -> send email(10s)
