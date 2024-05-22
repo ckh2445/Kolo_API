@@ -1,7 +1,7 @@
 ### Mysql with Docker
 
 ```dockerfile
-docker run -p 3307:3307 -e MYSQL_ROOT_PASSWORD=todos -e MYSQL_DATABASE=todos -d -v todos:/db --name todos mysql:8.0 
+docker run -p 3307:3307 -e MYSQL_ROOT_PASSWORD=kolotodos2 -e MYSQL_DATABASE=todos -d -v todos:/db --name todos mysql:8.0 
 # -e MYSQL_ROOT_PASSWORD=todos: mysql root pwd setting
 # -e MYSQL_DATABASE=todos: database create and naming is todos
 # -d: background option
