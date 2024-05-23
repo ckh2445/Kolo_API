@@ -28,3 +28,10 @@ class UserSchema(BaseModel):
 
 class JWTResponse(BaseModel):
     access_token: str
+
+
+class LogInResponse(BaseModel):
+    key: str
+    value: str
+    httponly: bool
+    secure: bool

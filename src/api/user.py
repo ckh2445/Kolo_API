@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Response
+from fastapi.responses import JSONResponse
 
 from cache import redis_client
 from database.orm import User
 from database.repository import UserRepository
 from schema.request import SignUpRequest, LogInRequest, CreateOTPRequest, VerifyOTPRequest
-from schema.response import UserSchema, JWTResponse
+from schema.response import UserSchema, JWTResponse, LogInResponse
 from security import get_access_token
 from service.user import UserService
+
 
 router = APIRouter(prefix="/users")
 
@@ -40,6 +42,7 @@ def user_log_in_handler(
         request: LogInRequest,
         user_service: UserService = Depends(),
         user_repo: UserRepository = Depends(),
+
 ):
     # 1. request body(username, password)
     # 2. db read user
@@ -62,7 +65,11 @@ def user_log_in_handler(
     access_token: str = user_service.create_jwt(username=user.username)
 
     # 5. return jwt
-    return JWTResponse(access_token=access_token)
+    response_data = {"message": "Login successful"}
+    response = JSONResponse(content=response_data, status_code=200)
+    response.set_cookie(key="jwt_token", value="your_token", httponly=True, secure=True)
+    return response
+
 
 
 # 회원가입(username, password)/ 로그인
