@@ -4,7 +4,7 @@ WORKDIR /NTT_API
 
 COPY . ./
 
-EXPOSE 80
+EXPOSE 9999
 # Install production dependencies.
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
