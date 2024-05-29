@@ -9,8 +9,19 @@ from schema.response import UserSchema, JWTResponse, LogInResponse
 from security import get_access_token
 from service.user import UserService
 
-
 router = APIRouter(prefix="/users")
+
+
+@router.get("/", status_code=200)
+def get_user_handler(
+        access_token: str = Depends(get_access_token),
+        user_service: UserService = Depends(),
+        user_repo: UserRepository = Depends(),
+):
+    username: str = user_service.decode_jwt(access_token=access_token)
+    user: User | None = user_repo.get_user_by_username(username=username)
+
+    return user.username
 
 
 @router.post("/sign-up", status_code=201)
@@ -65,11 +76,12 @@ def user_log_in_handler(
     access_token: str = user_service.create_jwt(username=user.username)
 
     # 5. return jwt
-    response_data = {"message": "Login successful"}
+    #response_data = {"message": "Login successful"}
+    # response = JSONResponse(content=response_data, status_code=200)
+    # response.set_cookie(key="jwt_token", value=access_token, httponly=True, secure=True, samesite="Lax")
+    response_data = {"message": "Login successful", "access_token": access_token}
     response = JSONResponse(content=response_data, status_code=200)
-    response.set_cookie(key="jwt_token", value="your_token", httponly=True, secure=True)
     return response
-
 
 
 # 회원가입(username, password)/ 로그인
