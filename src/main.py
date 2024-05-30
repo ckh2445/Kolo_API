@@ -8,7 +8,8 @@ origins = [
     "http://localhost",
     "http://localhost:8080",
     "http://127.0.0.1:8080",
-    "https://kolo.co.kr/"
+    "https://kolo.co.kr/",
+    "http://158.179.171.103:9999/",
 ]
 
 app.add_middleware(

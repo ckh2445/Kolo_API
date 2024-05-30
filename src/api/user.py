@@ -18,8 +18,19 @@ def get_user_handler(
         user_service: UserService = Depends(),
         user_repo: UserRepository = Depends(),
 ):
-    username: str = user_service.decode_jwt(access_token=access_token)
+
+    if not access_token:
+        raise HTTPException(status_code=404, detail="Check Access Token")
+
+    username: str | None = user_service.decode_jwt(access_token=access_token)
+
+    if not username:
+        raise HTTPException(status_code=404, detail="Check Access Token")
+
     user: User | None = user_repo.get_user_by_username(username=username)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User Not Found")
 
     return user.username
 
