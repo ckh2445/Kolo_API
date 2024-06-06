@@ -3,7 +3,7 @@ version: "3"
 services:
   kolo-api:
     container_name: kolo-api
-    image: Koloapi:v1.0.0
+    image: koloapi:v1.0.0
     ports:
         - "9999:9999"
     build: ./
