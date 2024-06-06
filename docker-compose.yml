@@ -3,7 +3,14 @@ version: "3"
 services:
   kolo-api:
     container_name: kolo-api
-    image: KoloAPI:v1.0.0
+    image: Koloapi:v1.0.0
     ports:
         - "9999:9999"
     build: ./
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt 
+      - ./data/certbot/www:/var/www/certbot
