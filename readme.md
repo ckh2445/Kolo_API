@@ -12,5 +12,5 @@ docker run -p 3307:3306 -e MYSQL_ROOT_PASSWORD=kolotodos2 -e MYSQL_DATABASE=todo
 
 ### Redis with Docker
 ```dockerfile
-docker run -d --name my_redis -e REDIS_PASSWORD=yourpassword redis
+docker run -p 6379:6379 --name redis -d --rm redis -e REDIS_PASSWORD=portfolio redis
 ```
